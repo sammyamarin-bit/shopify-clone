@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getProducts } from "@/lib/api";
 import { Package, DollarSign, ShoppingCart, TrendingUp } from "lucide-react";
 import Link from "next/link";

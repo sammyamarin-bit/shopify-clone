@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { ArrowRight, ShoppingBag, Shield, Truck, RotateCcw } from "lucide-react";
 import { getProducts, getCategories } from "@/lib/api";
