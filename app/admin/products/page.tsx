@@ -1,20 +1,23 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { getProducts } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { Product } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Star, ExternalLink } from "lucide-react";
 
-export default async function AdminProductsPage() {
-  const products = await getProducts();
+export default function AdminProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch("https://fakestoreapi.com/products").then((r) => r.json()).then(setProducts);
+  }, []);
 
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-400 text-sm">{products.length} total products</p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+        <p className="text-gray-400 text-sm">{products.length} total products</p>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -41,9 +44,7 @@ export default async function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="capitalize bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                      {product.category}
-                    </span>
+                    <span className="capitalize bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">{product.category}</span>
                   </td>
                   <td className="px-4 py-3 font-semibold text-gray-900">${product.price.toFixed(2)}</td>
                   <td className="px-4 py-3">
@@ -53,11 +54,7 @@ export default async function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/products/${product.id}`}
-                      className="text-emerald-600 hover:text-emerald-700 transition-colors"
-                      target="_blank"
-                    >
+                    <Link href={`/products/${product.id}`} className="text-emerald-600 hover:text-emerald-700 transition-colors">
                       <ExternalLink size={14} />
                     </Link>
                   </td>

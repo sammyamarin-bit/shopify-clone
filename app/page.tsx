@@ -1,12 +1,20 @@
-export const dynamic = "force-dynamic";
+"use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ShoppingBag, Shield, Truck, RotateCcw } from "lucide-react";
-import { getProducts, getCategories } from "@/lib/api";
+import { Product } from "@/types";
 import ProductCard from "@/components/ProductCard";
 
-export default async function HomePage() {
-  const [products, categories] = await Promise.all([getProducts(), getCategories()]);
+export default function HomePage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("https://fakestoreapi.com/products").then((r) => r.json()).then(setProducts);
+    fetch("https://fakestoreapi.com/products/categories").then((r) => r.json()).then(setCategories);
+  }, []);
+
   const featured = products.slice(0, 4);
 
   return (
@@ -25,16 +33,10 @@ export default async function HomePage() {
               Discover thousands of products across all categories. Quality items, great prices, fast delivery.
             </p>
             <div className="flex gap-3 flex-wrap">
-              <Link
-                href="/products"
-                className="flex items-center gap-2 bg-white text-emerald-700 font-semibold px-6 py-3 rounded-xl hover:bg-emerald-50 transition-colors"
-              >
+              <Link href="/products" className="flex items-center gap-2 bg-white text-emerald-700 font-semibold px-6 py-3 rounded-xl hover:bg-emerald-50 transition-colors">
                 Shop Now <ArrowRight size={18} />
               </Link>
-              <Link
-                href="/products"
-                className="flex items-center gap-2 border border-white/30 text-white font-medium px-6 py-3 rounded-xl hover:bg-white/10 transition-colors"
-              >
+              <Link href="/products" className="flex items-center gap-2 border border-white/30 text-white font-medium px-6 py-3 rounded-xl hover:bg-white/10 transition-colors">
                 Browse Categories
               </Link>
             </div>
@@ -60,9 +62,7 @@ export default async function HomePage() {
             { icon: RotateCcw, label: "Easy Returns", desc: "30-day policy" },
           ].map(({ icon: Icon, label, desc }) => (
             <div key={label} className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
-              <div className="bg-emerald-50 text-emerald-600 rounded-xl p-3">
-                <Icon size={22} />
-              </div>
+              <div className="bg-emerald-50 text-emerald-600 rounded-xl p-3"><Icon size={22} /></div>
               <div>
                 <p className="font-semibold text-gray-800 text-sm">{label}</p>
                 <p className="text-gray-400 text-xs">{desc}</p>
@@ -77,11 +77,8 @@ export default async function HomePage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Shop by Category</h2>
         <div className="flex flex-wrap gap-3">
           {categories.map((cat) => (
-            <Link
-              key={cat}
-              href={`/products?category=${encodeURIComponent(cat)}`}
-              className="capitalize bg-white border border-gray-200 text-gray-700 text-sm font-medium px-5 py-2.5 rounded-full hover:border-emerald-400 hover:text-emerald-600 transition-colors"
-            >
+            <Link key={cat} href={`/products?category=${encodeURIComponent(cat)}`}
+              className="capitalize bg-white border border-gray-200 text-gray-700 text-sm font-medium px-5 py-2.5 rounded-full hover:border-emerald-400 hover:text-emerald-600 transition-colors">
               {cat}
             </Link>
           ))}
@@ -96,11 +93,19 @@ export default async function HomePage() {
             View all <ArrowRight size={16} />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {featured.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {products.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-200 h-72 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {featured.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

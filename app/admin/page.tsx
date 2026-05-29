@@ -1,18 +1,24 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { getProducts } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { Product } from "@/types";
 import { Package, DollarSign, ShoppingCart, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
-export default async function AdminDashboard() {
-  const products = await getProducts();
+export default function AdminDashboard() {
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch("https://fakestoreapi.com/products").then((r) => r.json()).then(setProducts);
+  }, []);
+
   const totalValue = products.reduce((s, p) => s + p.price, 0);
   const categories = [...new Set(products.map((p) => p.category))];
 
   const stats = [
-    { label: "Total Products", value: products.length, icon: Package, color: "bg-blue-50 text-blue-600" },
-    { label: "Catalog Value", value: `$${totalValue.toFixed(0)}`, icon: DollarSign, color: "bg-emerald-50 text-emerald-600" },
-    { label: "Categories", value: categories.length, icon: TrendingUp, color: "bg-purple-50 text-purple-600" },
+    { label: "Total Products", value: products.length || "—", icon: Package, color: "bg-blue-50 text-blue-600" },
+    { label: "Catalog Value", value: products.length ? `$${totalValue.toFixed(0)}` : "—", icon: DollarSign, color: "bg-emerald-50 text-emerald-600" },
+    { label: "Categories", value: categories.length || "—", icon: TrendingUp, color: "bg-purple-50 text-purple-600" },
     { label: "Mock Orders", value: 24, icon: ShoppingCart, color: "bg-orange-50 text-orange-600" },
   ];
 
@@ -24,9 +30,7 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         {stats.map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
-            <div className={`rounded-xl p-3 ${color}`}>
-              <Icon size={22} />
-            </div>
+            <div className={`rounded-xl p-3 ${color}`}><Icon size={22} /></div>
             <div>
               <p className="text-xs text-gray-400 font-medium">{label}</p>
               <p className="text-2xl font-bold text-gray-900">{value}</p>
@@ -36,7 +40,6 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent products */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-gray-800">Recent Products</h2>
@@ -49,10 +52,10 @@ export default async function AdminDashboard() {
                 <span className="font-semibold text-gray-900 flex-shrink-0">${p.price.toFixed(2)}</span>
               </div>
             ))}
+            {products.length === 0 && <div className="h-4 bg-gray-100 rounded animate-pulse" />}
           </div>
         </div>
 
-        {/* Categories breakdown */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="font-bold text-gray-800 mb-4">Categories</h2>
           <div className="space-y-3">
